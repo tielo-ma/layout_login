@@ -5,3 +5,7 @@ class Produto(self, nome, preco, descricao):
     self.nome = nome
     self.preco = preco
     self.descricao = descricao
+
+#definindo carrinho como um dicionario
+carrinho []
+
