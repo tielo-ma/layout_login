@@ -9,6 +9,48 @@ class Produto(self, nome, preco, descricao):
 #definindo carrinho como um dicionario
 carrinho []
 
+carrinho = criar_carrinho(page)
+    page.title = "Cardápio"
+    page.horizontal_alignment = "center"
+    page.bgcolor = "#f0f0f0"
+    page.vertical_alignment = "center"
+
+    tabs = ft.Tabs(
+        tabs=[
+            ft.Tab(text="Doces"),
+            ft.Tab(text="Lanches"),
+            ft.Tab(text="Combos"),
+            ft.Tab(text="Porções"),
+            ft.Tab(text="Bebidas"),
+            ft.Tab(text="Carrinho"),
+        ],
+        on_change=lambda e: mudar_aba(page, e),
+    )
+
+    conteudo_inicial = criar_conteudo(tabs.tabs[0].text)
+
+    page.controls = [
+        ft.Container(
+            content=ft.Column(
+                horizontal_alignment="center",
+                controls=[
+                    ft.Text("Cardápio KiDeli", text_align="center"),
+                    tabs,
+                    conteudo_inicial,
+                ],
+            ),
+            bgcolor="transparent",
+            border_radius=10,
+            padding=ft.padding.all(20),
+            width=page.width,
+            height=page.height,
+            expand=True,
+        )
+    ]
+    page.update()
+
+
+
 #logo abaixo estara o conteudo dos produtos do restaurante
 def criar_conteudo(aba:str):
     if aba == "Doces":
@@ -487,5 +529,52 @@ def criar_conteudo(aba:str):
                 )
             ]
         )
-    
+def adicionar_ao_carrinho(page, produto):
+    global carrinho
+    carrinho.append(produto)
+    print("Adicionando ao carrinho:", produto.nome)
+    page.update()
+def criar_carrinho(page):
+    total = sum(produto.preco for produto in carrinho)
+    produtos = ft.Column(
+        controls=[ft.Text(f"{produto.nome} (R${produto.preco:.2f})", weight="bold") for produto in carrinho]
+    )
+    return ft.Column(
+        controls=[
+            ft.Text("Carrinho", text_align="center"),
+            ft.Divider(),
+            produtos,
+            ft.Text(f"Total: R${total:.2f}", text_align="right"),
+            ft.Row(
+                controls=[
+                    ft.ElevatedButton("Finalizar pedido", on_click=lambda e: fazer_pedido(page)),
+                ]
+            ),
+        ]
+    )
+def atualizar_carrinho(page):
+    page.controls[0].content = criar_carrinho(page)
+    page.update() 
 
+def fazer_pedido(page):
+    print("Pedido enviado")
+    carrinho_container = page.controls[0].content
+    # criand as opções de pagamento
+    opcoes_pagamento_container = criar_opcoes_pagamento(page)
+    # adicionando as opcoes de pagamento ao container
+    carrinho_container.controls.append(ft.Divider())
+    carrinho_container.controls.append(ft.Text("Opções de Pagamento", text_align="center"))
+    carrinho_container.controls.append(opcoes_pagamento_container)
+    page.update()
+class Pagamento:
+    def __init__(self, nome, descricao):
+        self.nome = nome
+        self.descricao = descricao
+
+opcoes_pagamento = [
+    Pagamento("Cartão de Crédito", "Pagamento seguro via cartão"),
+    Pagamento("Pix", "Pagamento instantâneo via Pix"),
+    Pagamento("Dinheiro", "Pagamento em dinheiro na entrega"),
+]   
+    
+ft.app(target=main)
