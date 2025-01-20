@@ -576,5 +576,136 @@ opcoes_pagamento = [
     Pagamento("Pix", "Pagamento instantâneo via Pix"),
     Pagamento("Dinheiro", "Pagamento em dinheiro na entrega"),
 ]   
+def criar_opcoes_pagamento(page):
+    opcoes = ft.Row()
+    opcoes.controls.append(
+        ft.Container(
+            width=162,
+            height=100,
+            padding=ft.padding.all(20),
+            border_radius=10,
+            bgcolor="white",
+            content=ft.Column(
+                controls=[
+                    ft.Text("Cartáo Crédito", weight="bold"),
+                    
+                    ft.ElevatedButton("Selecionar"),
+                ],
+            ),
+        )
+    )
     
+    opcoes_pagamento_lado_lado = ft.Row(
+        controls=[
+            ft.Container(
+                width=162,
+                height=100,
+                padding=ft.padding.all(20),
+                border_radius=10,
+                bgcolor="white",
+                content=ft.Column(
+                    controls=[
+                        ft.Text("Cartão Débito", weight="bold"),
+                        
+                        ft.ElevatedButton("Selecionar"),
+                    ],
+                ),
+            ),
+            ft.Container(
+                width=162,
+                height=100,
+                padding=ft.padding.all(20),
+                border_radius=10,
+                bgcolor="white",
+                content=ft.Column(
+                    controls=[
+                        ft.Text("Pix", weight="bold"),
+                        
+                        ft.ElevatedButton("Selecionar"),
+                    ],
+                ),
+            ),
+            ft.Container(
+                width=162,
+                height=100,
+                padding=ft.padding.all(20),
+                border_radius=10,
+                bgcolor="white",
+                content=ft.Column(
+                    controls=[
+                        ft.Text("Dinheiro", weight="bold"),
+                        
+                        ft.ElevatedButton("Selecionar"),
+                    ],
+                ),
+            ),
+        ]
+    )
+    
+    opcoes.controls.append(opcoes_pagamento_lado_lado)
+    
+    return opcoes
+#adicionando a funcao para controle das abas
+def mudar_aba(page, e):
+    if hasattr(e, 'control'): 
+        indice = e.control.selected_index
+        texto = e.control.tabs[indice].text
+    else:  
+        indice = e.selected_index
+        texto = e.tabs[indice].text
+    
+    conteudo = criar_conteudo(texto) if texto != "Carrinho" else criar_carrinho(page)
+    
+    nova_coluna = ft.Column(
+        horizontal_alignment="center",
+        controls=[
+            ft.Text("Cardápio KiDeli", text_align="center"),
+            e if hasattr(e, 'tabs') else page.controls[0].content.controls[1],
+            conteudo,
+        ],
+    )
+    
+    page.controls[0].content = nova_coluna
+    page.update()
+    
+def main(page: ft.Page):
+    carrinho = criar_carrinho(page)
+    page.title = "Cardápio"
+    page.horizontal_alignment = "center"
+    page.bgcolor = "#f0f0f0"
+    page.vertical_alignment = "center"
+
+    tabs = ft.Tabs(
+        tabs=[
+            ft.Tab(text="Doces"),
+            ft.Tab(text="Lanches"),
+            ft.Tab(text="Combos"),
+            ft.Tab(text="Porções"),
+            ft.Tab(text="Bebidas"),
+            ft.Tab(text="Carrinho"),
+        ],
+        on_change=lambda e: mudar_aba(page, e),
+    )
+
+    conteudo_inicial = criar_conteudo(tabs.tabs[0].text)
+
+    page.controls = [
+        ft.Container(
+            content=ft.Column(
+                horizontal_alignment="center",
+                controls=[
+                    ft.Text("Cardápio KiDeli", text_align="center"),
+                    tabs,
+                    conteudo_inicial,
+                ],
+            ),
+            bgcolor="transparent",
+            border_radius=10,
+            padding=ft.padding.all(20),
+            width=page.width,
+            height=page.height,
+            expand=True,
+        )
+    ]
+    page.update()
 ft.app(target=main)
